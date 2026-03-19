@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bigstretch</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="app">
+
+    <header class="header">
+      <div class="header-inner">
+        <div>
+          <h1>bigstretch</h1>
+          <p class="subtitle" id="subtitle">Session for today</p>
+        </div>
+        <div class="stats-row">
+          <div class="stat"><span class="stat-num" id="stat-done">0</span><span class="stat-label">Done</span></div>
+          <div class="stat"><span class="stat-num" id="stat-left">5</span><span class="stat-label">Left</span></div>
+          <div class="stat"><span class="stat-num" id="stat-faves">0</span><span class="stat-label">Saved</span></div>
+        </div>
+      </div>
+      <div class="toolbar">
+        <button class="btn" id="btn-new" onclick="newSession()">New session</button>
+        <button class="btn" id="btn-faves" onclick="toggleFaves()">Favourites</button>
+        <button class="btn" id="btn-banned" onclick="toggleBanned()">Banned</button>
+        <button class="btn btn-primary" onclick="completeAll()">All done ✓</button>
+      </div>
+    </header>
+
+    <main>
+      <div id="filter-bar" class="filter-bar" style="display:none">
+        <span class="filter-label">Filter:</span>
+        <button class="filter-btn active" data-area="all" onclick="setFilter('all', this)">All</button>
+        <button class="filter-btn" data-area="back" onclick="setFilter('back', this)">Back</button>
+        <button class="filter-btn" data-area="hips" onclick="setFilter('hips', this)">Hips</button>
+        <button class="filter-btn" data-area="shoulders" onclick="setFilter('shoulders', this)">Shoulders</button>
+        <button class="filter-btn" data-area="legs" onclick="setFilter('legs', this)">Legs</button>
+        <button class="filter-btn" data-area="neck" onclick="setFilter('neck', this)">Neck</button>
+      </div>
+
+      <div id="cards" class="cards-grid"></div>
+    </main>
+
+  </div>
+
+  <script src="stretches.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
