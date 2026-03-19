@@ -161,6 +161,15 @@ function makeCard(s) {
   card.className = 'card' + (isDone ? ' card--done' : '') + (isLiked ? ' card--liked' : '');
   card.dataset.id = s.id;
 
+  // Mobile tap-to-expand for descriptions
+  if (window.innerWidth <= 480) {
+    card.addEventListener('click', (e) => {
+      // Don't toggle if clicking action buttons
+      if (e.target.closest('.action-btn')) return;
+      card.classList.toggle('card--expanded');
+    });
+  }
+
   card.innerHTML = `
     <div class="card-visual" style="background:${s.color}">
       <div class="card-svg" style="color:${darken(s.color)}">${s.svg}</div>
