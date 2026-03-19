@@ -1,0 +1,385 @@
+/* style.css — bigstretch */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,300&family=Figtree:wght@400;500&display=swap');
+
+/* ── Reset & base ─────────────────────────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cream: #f8f5f0;
+  --ink: #1e1c18;
+  --ink-mid: #5a564e;
+  --ink-soft: #9a9488;
+  --green: #3a6648;
+  --green-light: #daeade;
+  --green-mid: #5a8c6a;
+  --border: rgba(30,28,24,0.10);
+  --border-mid: rgba(30,28,24,0.18);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow-card: 0 1px 4px rgba(30,28,24,0.06), 0 4px 16px rgba(30,28,24,0.04);
+}
+
+html { font-size: 16px; }
+
+body {
+  font-family: 'Figtree', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── App layout ───────────────────────────────────────────── */
+
+.app {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 1rem 4rem;
+}
+
+/* ── Header ───────────────────────────────────────────────── */
+
+.header {
+  padding: 2.5rem 0 1.5rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1.75rem;
+}
+
+.header-inner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+h1 {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(28px, 5vw, 40px);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin-top: 4px;
+  font-weight: 400;
+}
+
+/* ── Stats ────────────────────────────────────────────────── */
+
+.stats-row {
+  display: flex;
+  gap: 8px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 16px;
+  min-width: 64px;
+}
+
+.stat-num {
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--ink-soft);
+  margin-top: 3px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ── Toolbar ──────────────────────────────────────────────── */
+
+.toolbar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  font-family: 'Figtree', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 100px;
+  border: 1px solid var(--border-mid);
+  background: white;
+  color: var(--ink-mid);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+
+.btn:hover {
+  background: var(--ink);
+  color: white;
+  border-color: var(--ink);
+}
+
+.btn:active { transform: scale(0.97); }
+
+.btn-active {
+  background: var(--ink);
+  color: white;
+  border-color: var(--ink);
+}
+
+.btn-primary {
+  background: var(--green);
+  color: #e8f3ec;
+  border-color: transparent;
+}
+
+.btn-primary:hover {
+  background: #2c4f38;
+  color: white;
+}
+
+/* ── Filter bar ───────────────────────────────────────────── */
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.filter-label {
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-right: 2px;
+}
+
+.filter-btn {
+  font-family: 'Figtree', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  background: white;
+  color: var(--ink-mid);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.filter-btn.active,
+.filter-btn:hover {
+  background: var(--ink);
+  color: white;
+  border-color: var(--ink);
+}
+
+/* ── Cards grid ───────────────────────────────────────────── */
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+/* ── Card ─────────────────────────────────────────────────── */
+
+.card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s;
+}
+
+.card:hover {
+  border-color: var(--border-mid);
+  box-shadow: 0 2px 8px rgba(30,28,24,0.08), 0 8px 24px rgba(30,28,24,0.06);
+}
+
+.card--done {
+  opacity: 0.6;
+}
+
+.card--liked {
+  border-color: var(--green-mid);
+}
+
+/* ── Card visual (SVG area) ───────────────────────────────── */
+
+.card-visual {
+  position: relative;
+  width: 100%;
+  height: 148px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.card-svg {
+  width: 100px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-svg svg {
+  width: 100%;
+  height: 100%;
+}
+
+.done-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: var(--green);
+  color: #e8f3ec;
+  font-size: 10px;
+  font-weight: 500;
+  font-family: 'Figtree', sans-serif;
+  padding: 3px 10px;
+  border-radius: 100px;
+  letter-spacing: 0.04em;
+}
+
+/* ── Card body ────────────────────────────────────────────── */
+
+.card-body {
+  padding: 14px 16px 14px;
+  border-top: 1px solid var(--border);
+}
+
+.card-area {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 4px;
+}
+
+.card-name {
+  font-family: 'Fraunces', serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+
+.card-desc {
+  font-size: 12.5px;
+  color: var(--ink-mid);
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.card-hold {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--green);
+  background: var(--green-light);
+  padding: 3px 10px;
+  border-radius: 100px;
+  margin-bottom: 12px;
+  letter-spacing: 0.02em;
+}
+
+/* ── Card actions ─────────────────────────────────────────── */
+
+.card-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.action-btn {
+  font-family: 'Figtree', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--ink-mid);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s;
+}
+
+.action-btn:hover { background: #f2ede6; border-color: var(--border-mid); }
+.action-btn:active { transform: scale(0.96); }
+
+.action-done { color: var(--green); border-color: var(--green-light); }
+.action-done:hover { background: var(--green-light); }
+
+.action-undo { color: var(--ink-soft); }
+
+.action-liked { color: #c0445a; border-color: #f5dde2; background: #fdf0f2; }
+.action-liked:hover { background: #f5dde2; }
+
+.action-like:hover { color: #c0445a; }
+
+.action-skip { color: var(--ink-soft); margin-left: auto; }
+
+.action-ban { color: var(--ink-soft); }
+.action-ban:hover { color: #b83a3a; background: #fdf0f0; border-color: #f5dddd; }
+
+.action-unban { color: var(--green); border-color: var(--green-light); }
+.action-unban:hover { background: var(--green-light); }
+
+/* ── Empty state ──────────────────────────────────────────── */
+
+.empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--ink-soft);
+}
+
+.empty-icon {
+  font-size: 44px;
+  margin-bottom: 1rem;
+  opacity: 0.6;
+}
+
+.empty p {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 17px;
+  color: var(--ink-mid);
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+  .header-inner { flex-direction: column; }
+  .stats-row { width: 100%; justify-content: flex-start; }
+  .cards-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .card-desc { display: none; }
+}
+
+@media (max-width: 340px) {
+  .cards-grid { grid-template-columns: 1fr; }
+}
