@@ -34,7 +34,7 @@ body {
 /* ── App layout ───────────────────────────────────────────── */
 
 .app {
-  max-width: 760px;
+  max-width: 920px;
   margin: 0 auto;
   padding: 0 1rem 4rem;
 }
@@ -203,9 +203,11 @@ h1 {
   background: white;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  overflow: hidden;
+  overflow: visible;
   box-shadow: var(--shadow-card);
   transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s;
+  display: flex;
+  flex-direction: column;
 }
 
 .card:hover {
@@ -231,6 +233,62 @@ h1 {
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.card-corner-btn {
+  position: absolute;
+  top: 8px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(30,28,24,0.12);
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+  transition: all 0.15s;
+  z-index: 2;
+}
+
+.card-corner-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(30,28,24,0.15);
+  background: white;
+}
+
+.card-corner-btn:active {
+  transform: scale(0.95);
+}
+
+.card-corner-like {
+  right: 8px;
+  color: var(--ink-soft);
+}
+
+.card-corner-like:hover {
+  color: #c0445a;
+  border-color: #f5dde2;
+  background: white;
+}
+
+.card-corner-like.active {
+  color: #c0445a;
+  border-color: #f5dde2;
+  background: white;
+}
+
+.card-corner-ban {
+  left: 8px;
+  color: var(--ink-soft);
+}
+
+.card-corner-ban:hover {
+  color: #b83a3a;
+  background: white;
+  border-color: #f5dddd;
 }
 
 .card-svg {
@@ -263,8 +321,12 @@ h1 {
 /* ── Card body ────────────────────────────────────────────── */
 
 .card-body {
+  position: relative;
   padding: 14px 16px 14px;
   border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .card-area {
@@ -300,8 +362,65 @@ h1 {
   background: var(--green-light);
   padding: 3px 10px;
   border-radius: 100px;
-  margin-bottom: 12px;
+  margin-bottom: auto;
   letter-spacing: 0.02em;
+}
+
+/* ── Timer display ────────────────────────────────────────── */
+
+.timer-display {
+  position: relative;
+  background: var(--green-light);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.timer-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: var(--green);
+  opacity: 0.15;
+  transition: width 0.3s linear;
+}
+
+.timer-controls {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timer-time {
+  font-family: 'Fraunces', serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--green);
+  min-width: 48px;
+}
+
+.timer-control-btn {
+  font-family: 'Figtree', sans-serif;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--green);
+  background: white;
+  color: var(--green);
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.timer-control-btn:hover {
+  background: var(--green);
+  color: white;
+}
+
+.timer-control-btn:active {
+  transform: scale(0.95);
 }
 
 /* ── Card actions ─────────────────────────────────────────── */
@@ -310,6 +429,13 @@ h1 {
   display: flex;
   gap: 6px;
   align-items: center;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.action-spacer {
+  flex: 1;
+  min-width: 20px;
 }
 
 .action-btn {
@@ -336,18 +462,26 @@ h1 {
 
 .action-undo { color: var(--ink-soft); }
 
-.action-liked { color: #c0445a; border-color: #f5dde2; background: #fdf0f2; }
-.action-liked:hover { background: #f5dde2; }
-
-.action-like:hover { color: #c0445a; }
-
-.action-skip { color: var(--ink-soft); margin-left: auto; }
-
-.action-ban { color: var(--ink-soft); }
-.action-ban:hover { color: #b83a3a; background: #fdf0f0; border-color: #f5dddd; }
+.action-skip { color: var(--ink-mid); }
 
 .action-unban { color: var(--green); border-color: var(--green-light); }
 .action-unban:hover { background: var(--green-light); }
+
+.action-timer {
+  color: var(--green);
+  border-color: var(--green-light);
+  padding: 6px 8px;
+}
+
+.action-timer:hover {
+  background: var(--green-light);
+}
+
+.action-timer.timer-active {
+  background: var(--green);
+  color: white;
+  border-color: var(--green);
+}
 
 /* ── Empty state ──────────────────────────────────────────── */
 
@@ -378,45 +512,18 @@ h1 {
   .stats-row { width: 100%; justify-content: flex-start; }
   .cards-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
 
-  .card-desc {
-    display: none;
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-out;
+  /* Make corner buttons larger and more visible on mobile */
+  .card-corner-btn {
+    width: 36px;
+    height: 36px;
+    border-width: 1.5px;
+    background: white;
+    box-shadow: 0 2px 6px rgba(30,28,24,0.15);
   }
 
-  .card--expanded .card-desc {
-    display: block;
-    max-height: 200px;
-    margin-bottom: 10px;
-  }
-
-  .card {
-    cursor: pointer;
-    position: relative;
-  }
-
-  .card::after {
-    content: '⌄';
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 18px;
-    color: rgba(30,28,24,0.25);
-    transition: transform 0.3s ease;
-    pointer-events: none;
-  }
-
-  .card--expanded::after {
-    transform: rotate(180deg);
-  }
-
-  .card-actions {
-    pointer-events: auto;
-  }
-
-  .action-btn {
-    pointer-events: auto;
+  .card-corner-btn svg {
+    width: 18px;
+    height: 18px;
   }
 }
 

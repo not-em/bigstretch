@@ -12,7 +12,102 @@ const state = {
   done: new Set(),
   view: 'session', // 'session' | 'favourites' | 'banned'
   filter: 'all',
+  timers: {}, // { stretchId: { remaining, total, intervalId, isPaused } }
 };
+
+// ── Timer helpers ──────────────────────────────────────────
+
+function parseHoldDuration(hold) {
+  // Extract first number from hold string (e.g., "30 sec" -> 30, "45–60 sec" -> 45)
+  const match = hold.match(/(\d+)\s*(sec|min)/i);
+  if (!match) return null;
+  const num = parseInt(match[1], 10);
+  const unit = match[2].toLowerCase();
+  return unit === 'min' ? num * 60 : num;
+}
+
+function startTimer(id, duration) {
+  stopTimer(id);
+  state.timers[id] = {
+    remaining: duration,
+    total: duration,
+    isPaused: false,
+    intervalId: setInterval(() => {
+      const timer = state.timers[id];
+      if (!timer || timer.isPaused) return;
+
+      timer.remaining--;
+
+      if (timer.remaining <= 0) {
+        stopTimer(id);
+        // Auto-mark as done when timer completes
+        if (!state.done.has(id)) {
+          state.done.add(id);
+        }
+      }
+
+      updateTimerDisplay(id);
+    }, 1000)
+  };
+  updateTimerDisplay(id);
+}
+
+function pauseTimer(id) {
+  const timer = state.timers[id];
+  if (timer) {
+    timer.isPaused = !timer.isPaused;
+    updateTimerDisplay(id);
+  }
+}
+
+function stopTimer(id) {
+  const timer = state.timers[id];
+  if (timer?.intervalId) {
+    clearInterval(timer.intervalId);
+  }
+  delete state.timers[id];
+  updateTimerDisplay(id);
+}
+
+function updateTimerDisplay(id) {
+  const card = document.querySelector(`.card[data-id="${id}"]`);
+  if (!card) return;
+
+  const timer = state.timers[id];
+  const timerBtn = card.querySelector('.action-timer');
+  const timerDisplay = card.querySelector('.timer-display');
+
+  if (!timer) {
+    if (timerBtn) timerBtn.classList.remove('timer-active');
+    if (timerDisplay) timerDisplay.remove();
+    return;
+  }
+
+  if (timerBtn) timerBtn.classList.add('timer-active');
+
+  if (!timerDisplay) {
+    const display = document.createElement('div');
+    display.className = 'timer-display';
+    card.querySelector('.card-body').insertBefore(display, card.querySelector('.card-actions'));
+  }
+
+  const display = card.querySelector('.timer-display');
+  const minutes = Math.floor(timer.remaining / 60);
+  const seconds = timer.remaining % 60;
+  const timeStr = minutes > 0 ? `${minutes}:${seconds.toString().padStart(2, '0')}` : `${seconds}s`;
+  const progress = ((timer.total - timer.remaining) / timer.total) * 100;
+
+  display.innerHTML = `
+    <div class="timer-progress" style="width: ${progress}%"></div>
+    <div class="timer-controls">
+      <span class="timer-time">${timeStr}</span>
+      <button class="timer-control-btn" onclick="event.stopPropagation(); pauseTimer(${id})" title="${timer.isPaused ? 'Resume' : 'Pause'}">
+        ${timer.isPaused ? '▶' : '❚❚'}
+      </button>
+      <button class="timer-control-btn" onclick="event.stopPropagation(); stopTimer(${id}); render()" title="Stop">✕</button>
+    </div>
+  `;
+}
 
 // ── Persistence ────────────────────────────────────────────────
 
@@ -161,17 +256,16 @@ function makeCard(s) {
   card.className = 'card' + (isDone ? ' card--done' : '') + (isLiked ? ' card--liked' : '');
   card.dataset.id = s.id;
 
-  // Mobile tap-to-expand for descriptions
-  if (window.innerWidth <= 480) {
-    card.addEventListener('click', (e) => {
-      // Don't toggle if clicking action buttons
-      if (e.target.closest('.action-btn')) return;
-      card.classList.toggle('card--expanded');
-    });
-  }
-
   card.innerHTML = `
     <div class="card-visual" style="background:${s.color}">
+      ${!isBannedView ? `
+        <button class="card-corner-btn card-corner-ban" onclick="event.stopPropagation(); banStretch(${s.id})" title="Never show this">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="4" x2="12" y2="12"/><line x1="12" y1="4" x2="4" y2="12"/></svg>
+        </button>
+        <button class="card-corner-btn card-corner-like ${isLiked ? 'active' : ''}" onclick="event.stopPropagation(); toggleLike(${s.id})" title="${isLiked ? 'Remove from favourites' : 'Add to favourites'}">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="${isLiked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 14s-6-4.5-6-8a4 4 0 0 1 8 0 4 4 0 0 1 8 0c0 3.5-6 8-6 8 L8 14z"/></svg>
+        </button>
+      ` : ''}
       <div class="card-svg" style="color:${darken(s.color)}">${s.svg}</div>
       ${isDone ? '<div class="done-badge">Done</div>' : ''}
     </div>
@@ -187,22 +281,24 @@ function makeCard(s) {
             Restore
           </button>
         ` : `
+          ${state.view === 'session' ? `
+            <button class="action-btn action-skip" onclick="skipStretch(${s.id})" title="Swap for another">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 8c0-3.3 2.7-6 6-6s6 2.7 6 6-2.7 6-6 6"/><path d="M10 5l4-3-4-3" fill="currentColor"/></svg>
+              Swap
+            </button>
+          ` : ''}
+          <div class="action-spacer"></div>
+          ${parseHoldDuration(s.hold) ? `
+            <button class="action-btn action-timer" onclick="event.stopPropagation(); startTimer(${s.id}, ${parseHoldDuration(s.hold)}); render()" title="Start timer">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8" cy="9" r="6"/><path d="M8 6v3l2 2"/><path d="M6 2h4"/></svg>
+              Timer
+            </button>
+          ` : ''}
           <button class="action-btn ${isDone ? 'action-undo' : 'action-done'}" onclick="toggleDone(${s.id})">
             ${isDone
               ? `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8h10"/></svg> Undo`
               : `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 8l4 4 8-8"/></svg> Done`
             }
-          </button>
-          <button class="action-btn ${isLiked ? 'action-liked' : 'action-like'}" onclick="toggleLike(${s.id})" title="${isLiked ? 'Remove from favourites' : 'Add to favourites'}">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="${isLiked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 14s-6-4.5-6-8a4 4 0 0 1 8 0 4 4 0 0 1 8 0c0 3.5-6 8-6 8 L8 14z"/></svg>
-          </button>
-          ${state.view === 'session' ? `
-            <button class="action-btn action-skip" onclick="skipStretch(${s.id})" title="Swap for another">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 8c0-3.3 2.7-6 6-6s6 2.7 6 6-2.7 6-6 6"/><path d="M10 5l4-3-4-3" fill="currentColor"/></svg>
-            </button>
-          ` : ''}
-          <button class="action-btn action-ban" onclick="banStretch(${s.id})" title="Never show this">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="4" x2="12" y2="12"/><line x1="12" y1="4" x2="4" y2="12"/></svg>
           </button>
         `}
       </div>
